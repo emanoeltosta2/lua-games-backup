@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Versão a publicar (ex.: v1.2.0)"
+        required: true
+        default: "v1.2.0"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Montar pacote instalável
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="release/lua-games-backup"
+          mkdir -p "$package/backend" "$package/.millennium/Dist" "$package/google-drive-bridge"
+          cp plugin.json README.md PRIVACY.md TERMS.md "$package/"
+          cp backend/*.lua "$package/backend/"
+          cp .millennium/Dist/index.js "$package/.millennium/Dist/"
+          cp google-drive-bridge/LuaGamesBackup.GoogleDrive.exe "$package/google-drive-bridge/"
+          cp google-drive-bridge/oauth-client.json "$package/google-drive-bridge/"
+          cd release
+          tag="${{ inputs.tag || github.ref_name }}"
+          zip -r "Lua-Games-Backup-${tag}.zip" lua-games-backup
+
+      - name: Publicar release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          target_commitish: ${{ github.sha }}
+          files: release/Lua-Games-Backup-${{ inputs.tag || github.ref_name }}.zip
+          generate_release_notes: true

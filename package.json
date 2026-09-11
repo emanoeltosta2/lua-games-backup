@@ -1,0 +1,18 @@
+{
+  "name": "lua-games-backup",
+  "version": "1.2.0",
+  "description": "Backup de arquivos LuaTools para Steam/Millennium.",
+  "type": "module",
+  "main": "./frontend/index.tsx",
+  "scripts": {
+    "build": "millennium-ttc --build prod",
+    "dev": "millennium-ttc --build dev"
+  },
+  "devDependencies": {
+    "@steambrew/api": "^5.8.4",
+    "@steambrew/client": "^5.8.4",
+    "@steambrew/ttc": "^3.2.6",
+    "@types/react": "19.1.1",
+    "@types/react-dom": "19.1.1"
+  }
+}

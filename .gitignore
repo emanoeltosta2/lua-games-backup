@@ -1,0 +1,16 @@
+# Local dependencies and runtime state
+.pnpm-store/
+.runtime-logs/
+node_modules/
+google-drive-bridge/data/
+
+# Development-only binaries
+google-drive-bridge/BridgeDebug.exe
+google-drive-bridge/*.pending.exe
+google-drive-bridge/SyncTests.exe
+google-drive-bridge/VerifyCloudSync.exe
+
+# Local test captures and release output
+steam-ui-*.png
+release/
+
