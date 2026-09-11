@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1
+
+- Translates the installation and usage guide to English.
+
 ## 1.3.0
 
 - Move o Client Secret OAuth para um intermediário privado no Google Apps Script.
