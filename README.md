@@ -9,15 +9,13 @@ It does not download games or scan their content. When a Google account is conne
 
 ## Google Drive backup
 
-The plugin includes a small local service for secure Google sign-in. It starts automatically, uses OAuth 2.0 with PKCE, opens the default browser, and only listens on `127.0.0.1`. Your Google password never goes through or is stored by the plugin. Authorization is protected by Windows for the current user. Backups are kept in the app's private Google Drive data folder, using only the `drive.appdata` scope.
+Click **Sign in with Google**, choose an account in the browser, and approve the access request. The upload and restore buttons are enabled automatically.
 
-The project uses a small Google Apps Script sign-in broker. It stores the OAuth Client Secret in private project properties, while the public package and repository only contain the Client ID and the broker's public URL. The OAuth flow uses PKCE and never distributes a Client Secret, password, or user token.
-
-End users do not need to install dependencies or enter an address or token. Click **Sign in with Google**, choose an account in the browser, and approve the access request. The upload and restore buttons are enabled automatically.
+Your Google password is never requested or stored by the plugin. The connection is protected for the current Windows user, and backups are stored in a private area of that user's Google Drive.
 
 ## Installation
 
-1. Download `Lua-Games-Backup-v1.3.1.zip` from the Releases page.
+1. Download `Lua-Games-Backup-v1.3.2.zip` from the Releases page.
 2. Extract the `lua-games-backup` folder into `Steam/millennium/plugins/`.
 3. Restart Steam.
 4. In **Millennium → Plugins**, enable **Lua Games Backup**.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.2
+
+- Simplifies the README for end users.
+
 ## 1.3.1
 
 - Translates the installation and usage guide to English.
