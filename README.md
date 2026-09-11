@@ -12,13 +12,13 @@ faz uma verificação automática ao iniciar a Steam.
 
 O plugin inclui um pequeno serviço local para o login seguro no Google. Ele inicia automaticamente, usa OAuth 2.0 com PKCE, abre o navegador padrão e fica restrito a `127.0.0.1`; a senha da conta Google nunca passa pelo plugin nem é salva por ele. A autorização é protegida pelo Windows para o usuário atual. Os backups ficam na pasta privada de dados do aplicativo no Drive, usando somente o escopo `drive.appdata`.
 
-Antes de distribuir o plugin, o desenvolvedor cria uma única vez um cliente OAuth do tipo **Desktop app** no Google Cloud, habilita a Google Drive API e copia somente o Client ID para `google-drive-bridge/oauth-client.json` (campo `clientId`; use `oauth-client.example.json` como modelo). O login usa PKCE e não distribui Client Secret, senha ou tokens de usuários.
+O projeto mantém um pequeno intermediário de login no Google Apps Script. Ele guarda o Client Secret nas propriedades privadas do projeto, enquanto o pacote e o repositório público contêm somente o Client ID e a URL pública do intermediário. O login usa PKCE e não distribui Client Secret, senha ou tokens de usuários.
 
 O usuário final não instala dependências e não informa endereço nem token. Basta clicar em **Entrar com Google**, selecionar a conta no navegador e confirmar o acesso. Depois disso, os botões de envio e restauração são liberados automaticamente.
 
 ## Instalação
 
-1. Baixe o arquivo `Lua-Games-Backup-v1.2.0.zip` na página de Releases.
+1. Baixe o arquivo `Lua-Games-Backup-v1.3.0.zip` na página de Releases.
 2. Extraia a pasta `lua-games-backup` para `Steam/millennium/plugins/`.
 3. Reinicie a Steam.
 4. Em **Millennium → Plugins**, habilite **Lua Games Backup**.

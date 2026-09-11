@@ -9,7 +9,7 @@ on:
       tag:
         description: "Versão a publicar (ex.: v1.2.0)"
         required: true
-        default: "v1.2.0"
+        default: "v1.3.0"
 
 permissions:
   contents: write

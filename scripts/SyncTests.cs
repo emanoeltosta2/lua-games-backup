@@ -60,7 +60,7 @@ internal static class SyncTests
             Directory.CreateDirectory(Path.Combine(root, "config", "stplug-in"));
             var flags = BindingFlags.NonPublic | BindingFlags.Static;
             typeof(Program).GetField("SteamDirectory", flags).SetValue(null, root);
-            typeof(Program).GetField("Config", flags).SetValue(null, new BridgeConfig { clientId = "test.apps.googleusercontent.com" });
+            typeof(Program).GetField("Config", flags).SetValue(null, new BridgeConfig { clientId = "test.apps.googleusercontent.com", brokerUrl = "https://example.invalid" });
             typeof(Program).GetField("TokenPath", flags).SetValue(null, Path.Combine(root, "test-token.dat"));
             typeof(Program).GetMethod("SaveToken", flags).Invoke(null, new object[] { new OAuthToken { access_token = "test", refresh_token = "test" } });
             ((System.Threading.Tasks.Task)typeof(Program).GetMethod("AutoSync", flags).Invoke(null, null)).GetAwaiter().GetResult();

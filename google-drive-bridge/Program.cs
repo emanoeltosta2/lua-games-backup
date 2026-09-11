@@ -16,7 +16,15 @@ using System.Web.Script.Serialization;
 internal sealed class BridgeConfig
 {
     public string clientId { get; set; }
+    public string brokerUrl { get; set; }
     public int port { get; set; }
+}
+
+internal sealed class BrokerResponse
+{
+    public bool ok { get; set; }
+    public OAuthToken token { get; set; }
+    public string error { get; set; }
 }
 
 internal sealed class OAuthToken
@@ -368,18 +376,13 @@ internal static class Program
         if (String.IsNullOrEmpty(PendingState) || !SecureEquals(state, PendingState) || String.IsNullOrEmpty(code))
             throw new InvalidOperationException("A resposta de autorização é inválida ou expirou.");
 
-        var response = await Http.PostAsync("https://oauth2.googleapis.com/token",
-            new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                { "client_id", Config.clientId },
-                { "code", code },
-                { "code_verifier", PendingVerifier },
-                { "grant_type", "authorization_code" },
-                { "redirect_uri", RedirectUri }
-            }));
-        string json = await response.Content.ReadAsStringAsync();
-        if (!response.IsSuccessStatusCode) throw new InvalidOperationException(TokenError(json, (int)response.StatusCode));
-        OAuthToken token = Json.Deserialize<OAuthToken>(json);
+        OAuthToken token = await BrokerToken(new Dictionary<string, string>
+        {
+            { "action", "exchange" },
+            { "code", code },
+            { "code_verifier", PendingVerifier },
+            { "redirect_uri", RedirectUri }
+        });
         // Never reuse a refresh token from a previously connected account.
         if (token == null || String.IsNullOrEmpty(token.access_token) || String.IsNullOrEmpty(token.refresh_token))
             throw new InvalidOperationException("O Google não forneceu autorização para manter a conexão. Tente entrar novamente.");
@@ -394,7 +397,29 @@ internal static class Program
     {
         return !String.IsNullOrWhiteSpace(Config.clientId)
             && Config.clientId.EndsWith(".apps.googleusercontent.com", StringComparison.OrdinalIgnoreCase)
-            && !Config.clientId.StartsWith("COLE_", StringComparison.OrdinalIgnoreCase);
+            && !Config.clientId.StartsWith("COLE_", StringComparison.OrdinalIgnoreCase)
+            && Uri.IsWellFormedUriString(Config.brokerUrl, UriKind.Absolute)
+            && Config.brokerUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+    }
+
+    // The broker keeps the OAuth client secret outside the distributed plugin.
+    // It only exchanges/refreshes tokens; Drive requests still go directly from
+    // this Windows process to the signed-in user's own Drive.
+    private static async Task<OAuthToken> BrokerToken(Dictionary<string, string> values)
+    {
+        var response = await Http.PostAsync(Config.brokerUrl,
+            new StringContent(Json.Serialize(values), Encoding.UTF8, "application/json"));
+        string content = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException("Não foi possível falar com o serviço seguro de login. Tente novamente.");
+        BrokerResponse broker;
+        try { broker = Json.Deserialize<BrokerResponse>(content); }
+        catch { throw new InvalidOperationException("O serviço de login retornou uma resposta inválida."); }
+        if (broker == null || !broker.ok || broker.token == null)
+            throw new InvalidOperationException(String.IsNullOrWhiteSpace(broker == null ? null : broker.error)
+                ? "O serviço seguro de login não concluiu a autorização."
+                : broker.error);
+        return broker.token;
     }
 
     private static string TokenError(string response, int status)
@@ -442,16 +467,11 @@ internal static class Program
         OAuthToken token = LoadToken();
         if (token == null || String.IsNullOrEmpty(token.refresh_token)) throw new InvalidOperationException("Conecte sua conta Google primeiro.");
         if (!String.IsNullOrEmpty(token.access_token) && token.expires_at > NowSeconds() + 60) return token.access_token;
-        var response = await Http.PostAsync("https://oauth2.googleapis.com/token",
-            new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                { "client_id", Config.clientId },
-                { "refresh_token", token.refresh_token },
-                { "grant_type", "refresh_token" }
-            }));
-        string json = await response.Content.ReadAsStringAsync();
-        if (!response.IsSuccessStatusCode) throw new InvalidOperationException(TokenError(json, (int)response.StatusCode));
-        OAuthToken refreshed = Json.Deserialize<OAuthToken>(json);
+        OAuthToken refreshed = await BrokerToken(new Dictionary<string, string>
+        {
+            { "action", "refresh" },
+            { "refresh_token", token.refresh_token }
+        });
         refreshed.refresh_token = token.refresh_token;
         refreshed.expires_at = NowSeconds() + Math.Max(60, refreshed.expires_in);
         SaveToken(refreshed);

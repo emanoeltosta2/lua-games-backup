@@ -4,7 +4,8 @@ $projectDirectory = Split-Path -Parent $PSScriptRoot
 $releaseDirectory = Join-Path $projectDirectory 'release'
 $stageDirectory = Join-Path $releaseDirectory 'stage'
 $packageDirectory = Join-Path $stageDirectory 'lua-games-backup'
-$archivePath = Join-Path $releaseDirectory 'Lua-Games-Backup-v1.2.0.zip'
+$version = (Get-Content (Join-Path $projectDirectory 'plugin.json') -Raw | ConvertFrom-Json).version
+$archivePath = Join-Path $releaseDirectory ("Lua-Games-Backup-v" + $version + ".zip")
 
 if (Test-Path -LiteralPath $stageDirectory) {
     Remove-Item -LiteralPath $stageDirectory -Recurse -Force
@@ -30,4 +31,3 @@ Copy-Item -LiteralPath (Join-Path $projectDirectory 'google-drive-bridge\oauth-c
 Compress-Archive -LiteralPath $packageDirectory -DestinationPath $archivePath -CompressionLevel Optimal
 Remove-Item -LiteralPath $stageDirectory -Recurse -Force
 Write-Output $archivePath
-

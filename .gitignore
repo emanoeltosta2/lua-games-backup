@@ -9,8 +9,8 @@ google-drive-bridge/BridgeDebug.exe
 google-drive-bridge/*.pending.exe
 google-drive-bridge/SyncTests.exe
 google-drive-bridge/VerifyCloudSync.exe
+scripts/*.pending.exe
 
 # Local test captures and release output
 steam-ui-*.png
 release/
-
